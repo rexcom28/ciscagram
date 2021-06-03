@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ')w&helnrs)g#5p!@tv7+h@=-m$w48-di*fo0ux5bt+b2405mcj'
+SECRET_KEY = os.environ.get('A_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
@@ -179,8 +179,8 @@ EMAIL_TIMEOUT = 5
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = DEFAULT_FROM_EMAIL = 'pacu280349@gmail.com'
-EMAIL_HOST_PASSWORD = 'xgwidftcayibgzks'
+EMAIL_HOST_USER = DEFAULT_FROM_EMAIL = os.environ.get('A_EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('A_EMAIL_HOST_PASSWORD')
 EMAIL_SUBJECT_PREFIX = 'AllAuth Tutorial'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ACCOUNT_SIGNUP_REDIRECT_URL =LOGIN_REDIRECT_URL
