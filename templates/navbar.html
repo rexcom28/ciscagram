@@ -1,0 +1,109 @@
+{% url 'posts:main-board' as path_to_home %}
+
+{% url 'profiles:my-profile' as path_to_my_profile %}
+{% url 'profiles:oinkerprofile' request.user.username as path_to_oikerprofile %}
+{% url 'conversation:conversation-s' as path_to_my_conversation %}
+{% url 'notification:notifications' as path_to_my_notifications %}
+{% url 'contact_form' as path_to_contact %}
+{% url 'posts:categories' as path_to_Categories %}
+
+<header class="navbar navbar-expand-md navbar-light bg-light bd-navbar" >
+  <nav class="container-xxl flex-wrap flex-md-nowrap" aria-label="Main navigation">    
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" class="bi" fill="currentColor" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"></path>
+      </svg>
+    </button>
+
+    <div class="collapse navbar-collapse" id="bdNavbar">
+      <ul class="navbar-nav flex-row flex-wrap bd-navbar-nav pt-2 py-md-0">
+        <li class="nav-item col-6 col-md-auto">
+          <a class="nav-link {% if request.path == path_to_home %}active{% endif %}" aria-current="page" href="{{path_to_home}}">Home</a>
+        </li>
+        <li class="nav-item col-6 col-md-auto">          
+          <a class="nav-link p-2 {% if request.path == path_to_oikerprofile %}active{% endif %}" href="{% url 'profiles:oinkerprofile' request.user.username %}"  rel="noopener noreferrer">My Feed</a>
+        </li>
+        <li class="nav-item col-6 col-md-auto">
+          <a class="nav-link p-2 {% if request.path == path_to_my_notifications %}active{% endif %}" aria-current="true" href="{{path_to_my_notifications}}">Notifications ({{ notifications.count }})</a>
+        </li>        
+        <li class="nav-item col-6 col-md-auto">
+          <a class="nav-link p-2 {% if request.path == path_to_contact %}active{% endif %}" href="{{path_to_contact}}"  rel="noopener noreferrer">Contact</a>
+        </li>
+        <li class="nav-item col-6 col-md-auto">
+          <a class="nav-link p-2 {% if request.path == path_to_Categories %}active{% endif %}" href="{{path_to_Categories}}"  rel="noopener noreferrer">Categories</a>
+        </li>        
+      </ul>
+      <hr class="d-md-none text-white-50">
+      <ul class="navbar-nav flex-row flex-wrap ms-md-auto">
+        
+        <li class="nav-item col-6 col-md-auto">            
+          <img src="{{ user.profile.avatar.url }}" width="85" height="75"  class="rounded-circle" alt="{{user.username}}">                    
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Welcome, <strong>{{ user.get_username }}</strong>
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li >
+              <a class="dropdown-item" {% if request.path == path_to_my_conversation %}active{% endif %}" href="{{path_to_my_conversation}}">My Conversations</a>
+            </li>
+            <li >
+              <a class="dropdown-item" {% if request.path == path_to_my_profile %}active{% endif %}" href="{{path_to_my_profile}}">My Profile</a>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+            
+            <li >
+              <a class="dropdown-item"  href="{% url 'account_email' %}">Change Email</a>
+            </li>
+
+            <li >
+              <a class="dropdown-item" href="{% url 'account_reset_password' %}">Change Password </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <form class="d-flex" method="post" action="{% url 'account_logout' %}">        
+        {% csrf_token %}
+        {% if redirect_field_value %}
+          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+        {% endif %}        
+        <button class="btn btn-outline-success" type="submit">sing out</button>
+      </form>       
+    </div>
+  </nav>
+</header>
+
+
+
+<nav class="bd-subnavbar py-2" aria-label="Secondary navigation">
+  <div class="container-xxl d-flex align-items-md-center">
+    <form id="search-form " class="bd-search position-relative me-auto">
+      {% csrf_token %}
+      
+        <input type="search" class="form-control ds-input" id="search-input" placeholder="Search ..." 
+                aria-label="Search ..." autocomplete="off" data-bd-docs-version="5.0" spellcheck="false" .
+                role="combobox" aria-autocomplete="list" aria-expanded="false" aria-owns="algolia-autocomplete-listbox-0" 
+                dir="auto" style="position: relative; vertical-align: top; width: 350px;">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+          <label class="form-check-label" for="flexCheckDefault">
+            Unhide posts
+          </label>
+        </div>
+
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="flexCheckAuthor">
+            <label class="form-check-label" for="flexCheckAuthor">
+              By Author
+            </label>
+        </div>                        
+      
+      <div id="results-box" class="results-card not-visible"></div>
+    </form>
+    
+    
+  </div>
+</nav>
+

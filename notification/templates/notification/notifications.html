@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Notificatinos{% endblock title %}
+
+{% block content %}
+  <div class="container">
+    <div class="columns">
+        <div class="column is-12">
+            <h1 class="title">Notifications</h1>
+
+            
+            {% if not notifications %}
+                <p>No notifications yet</p>
+            {% endif %}
+            <div class="wrapper-oinks">
+                {% for notification in notifications  %}
+                  <article class="media"  >
+                      <figure class="media-left">
+                          <p class="image is64x64" >
+                            
+                            {% if notification.created_by.profile.avatar %}
+                                <img style="height: 64px; width: 64px;"src="{{ notification.created_by.profile.avatar.url }}"  >
+                            {% endif %}
+                                
+                          </p>
+                      </figure>
+                      <div class="media-content">
+                          <div class="content">
+                              <p>
+                                  
+                                {% if notification.notification_type == 'message' %}
+                                    <a href="{% url 'notification:notifications' %}?goto=conversation&notification={{notification.id}} ">
+                                        <strong>{{ notification.created_by.username}}</strong> sent you a message <br>
+                                        <small>{{ notification.created_at|naturaltime}}</small>
+                                    </a>
+                                {% elif notification.notification_type == 'follower' %}
+                                    <a href="{% url 'notification:notifications' %}?goto=oinkerprofile&notification={{ notification.id }}">
+                                        <strong>{{ notification.created_by.username }}</strong> started following you <br>
+                                        <small>{{ notification.created_at|naturaltime }}</small>
+                                    </a>a>    
+                                {% elif notification.notification_type == 'like' %}
+                                    <a href="{% url 'notification:notifications' %}?goto=post-detail&notification={{ notification.id }}">
+                                        <strong>{{ notification.created_by.username}}</strong> liked a post you created <br>
+                                        <small>{{ notification.created_at|naturaltime}}</small>
+                                    </a>
+                                {% elif notification.notification_type == 'mention' %}
+                                        <a href="{% url 'notification:notifications' %}?goto=post-detail&notification={{ notification.id }}">
+                                            <strong>{{ notification.created_by.username }}</strong> mentioned you in an post <br>
+                                            <small>{{ notification.created_at|naturaltime }}</small>
+                                        </a>
+                                {% elif notification.notification_type == 'update' %}
+                                <a href="{% url 'notification:notifications' %}?goto=post-detail&notification={{ notification.id }}">
+                                    <strong>{{ notification.created_by.username }}</strong> updated a post where you are mentioned <br>
+                                    <small>{{ notification.updated_at|naturaltime }}</small>
+                                </a>
+                                {% elif notification.notification_type == 'comment' %}
+                                    <a href="{% url 'notification:notifications' %}?goto=post-detail&notification={{ notification.id }}">
+                                        <strong>{{ notification.created_by.username }}</strong> comment a post you have created <br>
+                                        <small>{{ notification.updated_at|naturaltime }}</small>
+                                    </a>
+                                {% elif notification.notification_type == 'mcomment' %}
+                                    <a href="{% url 'notification:notifications' %}?goto=post-detail&notification={{ notification.id }}">
+                                        <strong>{{ notification.created_by.username }}</strong> mention at you in a comment <br>
+                                        <small>{{ notification.updated_at|naturaltime }}</small>
+                                    </a>
+                                {% endif %}
+                                      
+                              </p>
+                          </div>
+                      </div>
+                  </article>
+                {% endfor %}
+            </div>  
+        </div>
+    </div>
+  </div>
+{% endblock content %}

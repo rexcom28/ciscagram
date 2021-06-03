@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% block scripts %}
+    
+    <script src="{% static 'posts/detail.js' %}" defer></script>
+    
+{% endblock scripts %}
+
+{% block title %}{{obj.title}} detail{% endblock title %}
+
+{% block content %}
+    <!-- Update Modal -->
+    <div class="modal fade" id="updateModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Update post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alert-box"></div>
+                    <form id="update-form" method="POST" action=".">
+                        {% csrf_token %}
+                        {{form|crispy}}
+                        <div class="modal-footer">
+                            <button id="close-btn"  type="button" class="btn btn-danger" data-bs-dismiss="modal">close</button>
+                            <button type="submit" class="btn btn-success">update</button>
+                        </div>
+                    </form>
+                    <form action="upload/" id="my-dropzone" class="dropzone dz">
+                        {% csrf_token %}
+                        <div class="fallback">
+                            <input name="file" type="file" multiple />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete <b>"{{obj.title}}"</b> ?
+                </div>
+                <div class="modal-footer">
+                    <form id="delete-form">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">close</button>
+                        <button type="submit" class="btn btn-success">delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- carousel -->
+    {% if obj.get_photos %}
+        <div id="carouselExampleControls"  style="width:50%;" class="mx-auto d-block carousel slide mb-2" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for p in obj.get_photos %}        
+                    <div class="carousel-item {% if forloop.counter == 1%}active{% endif %} ">
+                        <img src="{{p.upload.url}}"  class="d-block w-100 img-fluid" alt="photo {{obj.pk}}">
+                    </div>                        
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"  data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"  data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    {% else %}
+        <div class="mt-2 mb-2">No photos to show</div>
+    {% endif %}
+
+
+    <a id="back-btn" class="btn btn-info">back</a>
+    <button id="update-btn" class="btn btn-primary not-visible" data-bs-toggle="modal" data-bs-target="#updateModal">update</button>
+    <button id="delete-btn" class="btn btn-danger not-visible" data-bs-toggle="modal" data-bs-target="#deleteModal">delete</button>
+
+    
+    
+    
+    <div id="spinner-box" class="text-center">
+        <div class="spinner-border" role="status"></div>
+    </div>
+    <div class="mt-1" id="post-box"></div>
+    <br>
+    <hr>
+    
+    <div class="container" id="conversationapp">
+        
+        <button @click="likeOink({{ obj.id }})" class="btn btn-primary" id="like-unlike-{{obj.id}}"> 
+            {% if request.user in obj.liked.all %}UnMike ({{obj.liked.count}}) {% else %}Mike ({{obj.liked.count}}){% endif %}
+        </button>
+        <br>
+        <br>
+        <div class="columns">
+            <div class="column is-12">
+                <h5 class="title">Comments</h5>
+                <div class="messages">
+                    
+                        {% for message in messages_post %}
+                            <div class="oink">
+                                <article class="media">
+                                    <figure class="media-left">
+                                        <p class="image is-64x64">                                            
+                                            {% if message.created_by.profile.avatar %}
+                                            <a data-toggle="tooltip" title="to user profile {{message.created_by.username}}" href="{% url 'profiles:oinkerprofile' message.created_by.username %}">
+                                                <img src="{{ message.created_by.profile.avatar.url }}">
+                                            </a>    
+                                            {% endif %}                                                
+                                        </p>
+                                    </figure>
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <p>
+                                                <a data-toggle="tooltip" title="to user profile {{message.created_by.username}}" href="{% url 'profiles:oinkerprofile' message.created_by.username %}">
+                                                <strong>{{ message.created_by.username}}</strong></a>  <small>{{message.created_at|naturaltime}}</small>
+                                                <br>
+                                                {{ message.content }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+                        {% endfor %}
+    
+                        <!--VUE-->
+                        <div class="oink" v-for="message in messages">
+                            <article class="media">
+                                <figure class="media-left">
+                                    <p class="image is-64x64" >
+                                        <img :src="message.avatar">                                    
+                                    </p>
+                                </figure>
+    
+                                <div class="media-content">
+                                    <div class="content">
+                                        <p>
+                                            <a data-toggle="tooltip" title="to user profile {{request.user.username}} " href="{% url 'profiles:oinkerprofile' request.user.username %}">
+                                            <strong>{{request.user.username}}</strong></a> <small>[[ message.created_at ]]</small>
+                                            <br>
+                                            [[ message.content ]]
+                                        </p>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                </div>
+            </div>
+        </div>
+        <form v-on:submit.prevent="submitMessage()">
+            <div class="field">
+                <div class="control">
+                    <textarea class="textarea" v-model="content" placeholder="Your comment "></textarea>
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button is-success">Send</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+{% endblock content %}
+
+
+
+{% block scriptVue %}
+<script>
+    new Vue({
+        el: '#conversationapp',
+        delimiters: ['[[', ']]'],
+        data (){
+            return{
+                data: {},
+                messages:[],
+                content: '',
+                created_at: 'Now',
+                avatar: '{% if request.user.profile.avatar %}{{ request.user.profile.avatar.url }}{% endif %}'
+            }
+        },
+        methods: {
+            submitMessage() {
+                if(this.content.length > 0){
+                    
+                    var message = {
+                        'content': this.content,
+                        'oinker': this.oinker,
+                        'created_at': this.created_at,
+                        'avatar': this.avatar,
+                        'post_id': '{{ obj.id }}'
+                        
+                    };
+                    this.messages.unshift(message);
+
+                    fetch('/api/add_message_post/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(message)
+                    })
+                    .then((response) =>{
+                        //console.log(response);
+                        return response.json()
+                    })
+                    .then((data)=>{
+                        
+                        console.log(data);
+                        this.data=data['data']['0']
+                        
+                    })
+                    .catch((error) =>{
+                        console.log(error);
+                    });
+
+                    this.content = '';
+
+                }
+            },
+            likeOink(oink_id){
+                console.log(oink_id)
+                var oink = {
+                    'pk':oink_id
+                };
+                fetch('/like-unlike/',{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(oink)
+                })
+                .then((response) =>{
+                    //console.log(response);
+                    return response.json()
+                })
+                .then((data)=>{
+                    console.log('data',typeof(data['liked']))
+                    const clickedBtn = document.getElementById(`like-unlike-${oink_id}`)
+                    console.log(clickedBtn)
+                    
+                    clickedBtn.textContent = data['liked']== true ? `UnMike (${data['count']})`: `Mike (${data['count']})`
+                })
+                .catch((error)=>{
+                    console.log(error)
+                });
+            }
+        }
+    })
+</script>
+{% endblock scriptVue %} 

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% block scripts %}
+    
+    <script src="{% static 'posts/category.js' %}" defer></script>
+    
+{% endblock scripts %}
+
+{% block title %} Category {{CATEGORY}} {% endblock title %}
+
+{% block content %}
+    <div class="container" id="conversationapp">
+        <!-- Modal -->
+        <div class="modal fade" id="addPostModal"  data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Create post</h5>
+                        <button type="button" class="btn-close add-modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="post-form" autocomplete="off">
+                            
+                            {% csrf_token %}
+                            {{form|crispy}}
+                            <div class="modal-footer">
+                                <button type="button" id="close-modal"class="btn btn-danger add-modal-close" data-bs-dismiss="modal">close</button>
+                                <button type="submit" id="add-btn" class="btn btn-success">+ add</button>
+                            </div>
+                        </form>
+                        <form action="upload/" id="my-dropzone" class="dropzone dz not-visible">
+                            {% csrf_token %}
+                            <div class="fallback">
+                                <input name="file" type="file" multiple />
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="media">        
+            <img style="width: 15rem;" class="align-self-start mr-3 rounded float-left" src="{{ CATEGORY.upload.url}}" >
+            <div class="media-body">
+                <h5 class="mt-0 display-5"> <i>{{CATEGORY.title}}</i> Category</h5>
+            </div>
+        </div>
+         
+        <div class="col-6">
+            <a id="back-btn" class="btn btn-success mt-2 mb-2">back</a>
+            <button id="addBtnPost" type="button" class="btn btn-info mt-2 mb-2"  data-bs-toggle="modal" data-bs-target="#addPostModal">add post</button>
+        </div>        
+        <br>
+        <br>
+        {% for el in posts %}
+            <div class="posts-box">
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">{{el.title}}</h5>
+                        <p class="card-text">{{el.body}}</p>
+                        <small>User: <a href="{% url 'profiles:oinkerprofile' el.author %}"><strong>{{el.author}}</strong></a></small>
+                    </div>
+                    <div class="card-footer">
+                        <div class="row">
+                            <div class="col-6">
+                                <a href="{% url 'posts:post-detail' el.id %}" class="btn btn-primary">Details</a>
+                            </div>
+                            <div class="col-6">                            
+                                <button @click="likeOink({{ el.id }})" class="btn btn-primary" id="like-unlike-{{el.id}}"> 
+                                    {% if request.user in el.liked.all %}UnMike ({{el.liked.count}}) {% else %}Mike ({{el.liked.count}}){% endif %}
+                                </button>                            
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>  
+        {% endfor %}    
+    
+         
+    </div>    
+{% endblock content %}
+
+{% block scriptVue %}
+<script>
+    new Vue({
+        el: '#conversationapp',
+        delimiters: ['[[', ']]'],
+        data (){
+            return{
+                data: {}
+            }
+        },
+        methods: {
+            likeOink(oink_id){
+                console.log(oink_id)
+                var oink = {
+                    'pk':oink_id
+                };
+                
+                fetch('/like-unlike/',{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(oink)
+                })
+                .then((response) =>{
+                    //console.log(response);
+                    return response.json()
+                })
+                .then((data)=>{
+                    console.log('data',typeof(data['liked']))
+                    const clickedBtn = document.getElementById(`like-unlike-${oink_id}`)
+                    console.log(clickedBtn)
+                    
+                    clickedBtn.textContent = data['liked']== true ? `UnMike (${data['count']})`: `Mike (${data['count']})`
+                })
+                .catch((error)=>{
+                    console.log(error)
+                });
+            }
+        }
+    })
+    
+    const backBtn   = document.getElementById('back-btn');
+
+    backBtn.addEventListener('click', ()=>{
+        history.back()
+    })
+
+    const addBtnPost = document.getElementById('addBtnPost');
+    addBtnPost.addEventListener('click',()=>{
+        const categoryinput = document.querySelector('.select');
+        categoryinput.value='{{CATEGORY_ID}}';
+        categoryinput.setAttribute("disabled", "disabled");
+    })
+</script>    
+
+{% endblock scriptVue %}

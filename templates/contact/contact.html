@@ -1,0 +1,33 @@
+{% extends "conversation/base.html" %}
+
+{% block content %}
+    <div class="container mt-5 text-center" style="width: 500px; font-family:verdana, 'sans-serif';">
+        <form method="post">
+            <h3>Send a Message</h3>
+            {% csrf_token %}
+            <div class="form-group">
+                
+                {% if messages %}
+                    {% for message in messages  %}
+                        <span {% if message.tags %} class="{{message.tags}}"{% endif %} style="color: green;">
+                            {{message}}
+                        </span>
+                    {% endfor %}
+                {% endif %}                    
+            </div>
+            <div class="form-group">
+                {{forms.name}}                
+            </div>
+            <div class="form-group">
+                {{forms.email}}
+            </div>
+            <div class="form-group">
+                {{forms.subject}}
+            </div>
+            <div class="form-group">
+                {{forms.message}}
+            </div>
+            <button class="btn btn-info btn-block">Submit</button>
+        </form>
+    </div>
+{% endblock content %}

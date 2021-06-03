@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+{% block scripts %}
+    <script src="{% static 'profiles/userProfile.js' %}" defer></script>
+{% endblock scripts %}
+
+{% block title %}
+{{request.user.username}} feed
+{% endblock title %}
+
+{% block content %}
+    <div class="container" id="oinkerprofileapp">
+        <div class="columns">
+            <div class="column is-12">
+                <h1 class="title">{{ u.username }}</h1>
+                <p><h5>{{u.profile.bio}}</h5></p>
+            
+                {% if u.profile.avatar %}
+                    <figure class="img-fluid" style="width: 10%;" >
+                        <img src="{{ u.profile.avatar.url }}" alt="">
+                    </figure>
+                {% endif %}    
+            
+                {% if u.username != request.user.username %}                    
+                    <a href="{% url 'conversation:conversation' u.id %}" class="button is-info">Send message</a>                                       
+                    {% if request.user.profile in u.profile.followed_by.all %}
+                        <a href="{% url 'profiles:unfollow-oinker' u.username %}" class="button is-success">unFollow</a>
+                    {% else %}
+                        <a href="{% url 'profiles:follow-oinker' u.username %}" class="button is-danger">follow</a>
+                    {% endif %}                    
+                {% endif %}
+                    
+            </div>
+        </div>
+        <div class="columns">
+            <div class="column is-8">
+                <div class="wrapper-oinks">
+                    {% for post in posts %}
+                        
+                        {% if post.author.username == request.user.username  %}
+                            <div class="oink">
+                                        
+                                        
+                                <article class="media">
+                                    
+                                    <figure class="media-left">
+                                        <p class="image is-64x64">                                        
+                                            {% if user.profile.avatar %}
+                                                <a data-toggle="tooltip" title="to user profile {{user.username}}" href="{% url 'profiles:oinkerprofile' user.username %}">
+                                                    <img class="img-thumbnail" style="width:95%;" src="{{ u.profile.avatar.url }}" >
+                                                </a>
+                                            {% endif %}                                            
+                                        </p>
+                                    </figure>
+                                
+
+                                    <div class="media-content">
+                                        <div class="content">
+                                            <p>
+                                                <a data-toggle="tooltip" title="to user profile {{post.author.username}}" href="{% url 'profiles:oinkerprofile' post.author.username %}">
+                                                    <strong>{{ post.author.username }}</strong>
+                                                </a>
+                                                <a data-toggle="tooltip" title="to post {{post.title}}" href="{% url 'posts:post-detail' post.id %}">
+                                                    <small>{{ post.created|naturaltime }}</small>
+                                                    <br>                                                
+                                                    {{post.body}}                                                    
+                                                    <br>
+                                                    <small>Likes {{ post.like_count }}</small>
+                                                </a>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </article>                                    
+                            </div>
+                            <hr>
+                        {% else %}                            
+                            {% if post.visible %}
+                                <div class="oink">
+                                    
+                                    
+                                    <article class="media">
+                                        
+                                        <figure class="media-left">
+                                            <p class="image is-64x64">                                        
+                                                {% if user.profile.avatar %}
+                                                    <a data-toggle="tooltip" title="to user profile {{user.username}}" href="{% url 'profiles:oinkerprofile' user.username %}">
+                                                        <img class="img-thumbnail" style="width:95%;" src="{{ u.profile.avatar.url }}" >
+                                                    </a>                                                    
+                                                {% endif %}                                            
+                                            </p>
+                                        </figure>
+                                    
+
+                                        <div class="media-content">
+                                            <div class="content">
+                                                <p>
+                                                    <a data-toggle="tooltip" title="to post {{post.author.username}}" href="{% url 'profiles:oinkerprofile' post.author.username %}">
+                                                        <strong>{{ post.author.username }}</strong>
+                                                    </a>
+                                                    
+                                                    <a data-toggle="tooltip" title="to post {{post.title}}" href="{% url 'posts:post-detail' post.id %}">
+                                                        <small>{{ post.created|naturaltime }}</small>
+                                                        <br>                                                        
+                                                        {{post.body}}
+                                                        <br>
+                                                        <small>Likes {{ post.like_count }}</small>
+                                                    </a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>                                    
+                                </div>
+                                <hr>
+                            {% endif %}                                
+                        {% endif %}
+                            
+                        
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+

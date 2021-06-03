@@ -1,0 +1,47 @@
+
+{% extends "account/base.html" %}
+
+{% load widget_tweaks %}
+
+{% load static %}
+{% block head_title %}Login{% endblock %}
+{% block extra_head %}
+
+{% endblock extra_head %}
+
+{% block content %}
+    {% block subtitlePage %}
+        <h2>Log In</h2>        
+    {% endblock subtitlePage %}
+    <div class="row">
+        <form method="POST" action="{% url 'account_login' %}"  class="form-group">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="row">
+
+                
+                {% render_field form.login autocomplete="off" placeholder=form.login.label class+="form-control mb-2"   type="text" %}
+                {{form.login.errors}}
+                <!--input type="text" name="username" id="username" class="form__input" placeholder="Username"-->
+            </div>
+            <div class="row mb-3">
+                
+                {{form.password|add_class:"form-control"}}
+                {{form.password.errors}}
+                <!-- <span class="fa fa-lock"></span> -->
+                <!--input type="password" name="password" id="password" class="form__input" placeholder="Password"-->
+            </div>
+            <div class="form-check">
+                <input type="checkbox" name="remember_me" id="remember_me" class="">
+                <label for="remember_me">Remember Me!</label>
+            </div>
+            <div class="row">
+                <input type="submit" value="Submit" class="btn">
+            </div>
+        </form>
+    </div>
+
+    <div class="row">
+        <p>Don't have an account? <a href="{{ signup_url }}">Register Here</a></p>
+    </div>
+{% endblock %}

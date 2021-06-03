@@ -1,0 +1,222 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        
+        <!--link rel="apple-touch-icon" type="image/png" href="https://cpwebassets.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png"-->
+        <meta name="apple-mobile-web-app-title" content="CodePen">
+        
+        <!--link rel="shortcut icon" type="image/x-icon" href="https://cpwebassets.codepen.io/assets/favicon/favicon-aec34940fbc1a6e787974dcd360f2c6b63348d4b1f4e06c77743096d55480f33.ico"-->
+        <link rel="icon" type="image/png" href="{% static 'favicon.ico' %}"/>
+        <link rel="mask-icon" type="" href="https://cpwebassets.codepen.io/assets/favicon/logo-pin-8f3771b1072e3c38bd662872f6b673a722f4b3ca2421637d5596661b4e2132cc.svg" color="#111">
+        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        
+        <!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+        
+        <script src="{% static 'functions.js' %}" defer></script>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% block extra_head %} 
+        
+        {% endblock %}           
+        <style>
+            
+            .main-content{
+                width: 50%;
+                border-radius: 20px;
+                box-shadow: 0 5px 5px rgba(0,0,0,.4);
+                margin: 5em auto;
+                display: flex;
+            }
+            .company__info{
+                background-color: #008080;
+                border-top-left-radius: 20px;
+                border-bottom-left-radius: 20px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                color: #fff;
+            }
+            .fa-android{
+                font-size:3em;
+            }
+            @media screen and (max-width: 640px) {
+                .main-content{width: 90%;}
+                .company__info{
+                    display: none;
+                }
+                .login_form{
+                    border-top-left-radius:20px;
+                    border-bottom-left-radius:20px;
+                }
+            }
+            @media screen and (min-width: 642px) and (max-width:800px){
+                .main-content{width: 70%;}
+            }
+            .row > h2{
+                color:#008080;
+            }
+            .login_form{
+                background-color: #fff;
+                border-top-right-radius:20px;
+                border-bottom-right-radius:20px;
+                border-top:1px solid #ccc;
+                border-right:1px solid #ccc;
+            }
+            form{
+                padding: 0 2em;
+            }
+            .form__input{
+                width: 100%;
+                border:0px solid transparent;
+                border-radius: 0;
+                border-bottom: 1px solid #aaa;
+                padding: 1em .5em .5em;
+                padding-left: 2em;
+                outline:none;
+                margin:1.5em auto;
+                transition: all .5s ease;
+            }
+            .form__input:focus{
+                border-bottom-color: #008080;
+                box-shadow: 0 0 5px rgba(0,80,80,.4); 
+                border-radius: 4px;
+            }
+            .btn{
+                
+                transition: all .5s ease;
+                width: 70%;
+                border-radius: 30px;
+                color:#008080;
+                font-weight: 600;
+                background-color: #fff;
+                border: 1px solid #008080;
+                margin-top: 1.5em;
+                margin-bottom: 1em;
+                margin-left: 45px;
+                justify-content: center; 
+            }
+            .btn:hover, .btn:focus{
+                background-color: #008080;
+                color:#fff;
+            }
+            .center {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                width: 50%;
+                }
+            #icon {
+                width:125px;
+            }
+            #container{
+                width: 300px;
+            }
+            ul{
+                list-style: none;
+                color: #008080;
+                font-weight: bold;
+            }
+            
+            
+  
+  
+        </style>
+        <script>
+            window.console = window.console || function(t) {};
+        </script>
+        
+        <script>
+            if (document.location.search.match(/type=embed/gi)) {
+            window.parent.postMessage("resize", "*");
+            }
+        </script>
+      
+      
+        <title>{% block head_title %}{% endblock %}</title>
+
+
+
+    </head>
+    <body translate="no">
+        
+        {% block body %}
+            {% if messages %}
+                {% for message in messages %}                
+                {% comment %}
+                    <div  id="container">
+                        <div  id="{{message.level}}" class="alert alert-{{message.tags}} alert-dismissible" role="alert">
+                            <button  type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            {{message}}
+                        </div>
+                    </div>    
+                {% endcomment %}
+                    
+                <script >
+                    handelAlerts('{{message.level}}', '{{message}}')
+                </script>
+                {% endfor %}
+            {% endif %}
+        
+            {% comment %}
+                <div>
+                    <strong>Menussss:</strong>
+                    <ul>
+                        {% if user.is_authenticated %}
+                            <li><a href="{% url 'account_email' %}">Change E-mail</a></li>
+                            <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+                        {% else %}
+                            <li><a href="{% url 'account_login' %}">Sign In</a></li>
+                            <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>            
+            {% endcomment %}
+                
+            <!-- Main Content -->
+            <div class="container-fluid">
+                <div class="row main-content bg-success text-center">
+                    <div class="col-md-4 text-center company__info">
+                        <img class="center" src="{% static 'images/RexcomLogo.png' %}" id="icon" alt="User Icon" />
+                        <!--h4 class="company_title">Rexcom</h4-->
+                        
+                    </div>
+                    <div class="col-md-8 col-xs-12 col-sm-12 login_form ">
+                        <div class="container-fluid">
+                            {% block content %}
+                                <div class="row">                                    
+                                    {% block subtitlePage %}
+                                        
+                                    {% endblock subtitlePage %}
+                                </div>
+                        
+                            
+                            {% endblock %}  
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'posts:main-board' %}" id="back-btn"  class="btn btn-info">back to main</a>    
+                            {% endif %}                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <!--div class="container-fluid text-center footer">
+                Template Source By <a href="https://bit.ly/yinkaenoch">Yinka.</a><p></p>
+            </div-->
+               
+
+
+        {% endblock %}
+
+        {% block extra_body %}
+        {% endblock %}
+
+        <!--script src="{% static 'js/auth.js' %}"></script-->
+    </body>
+</html>
+
+

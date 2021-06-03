@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load humanize %}
+{% block scripts %}
+    
+    
+    
+{% endblock scripts %}
+
+{% block title %} Categories{% endblock title %}
+
+{% block content %}
+    <H1>Categories</H1>
+    <br>
+    <div class="col-6">
+      <a id="back-btn" class="btn btn-success mb-2">back</a>
+      <a  href="{% url 'posts:categoryAdd' %}" class="btn btn-warning mb-2">add Category</a>
+    </div>
+    <br>
+    <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Home</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button id="is_NSFW" class="nav-link" id="pills-profile-tab"  type="button" role="tab" aria-controls="pills-profile" aria-selected="false">NSFW Categories</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Others</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+          {% for cat in  categories %}          
+            {% if not cat.NSFWs  %}
+              <div class="media">
+                    
+                {% if cat.upload %}
+                  <a href="{% url 'posts:category' cat.title %}">
+                    <img style="width: 15rem;" class="align-self-center mr-3 rounded float-left" src="{{cat.upload.url}}" >
+                  </a>              
+                {% endif%}
+                <div class="media-body">
+                  <h5 class="mt-0"><a href="{% url 'posts:category' cat.title %}">{{cat.title}}</a></h5>
+                  <p><a href="{% url 'posts:category' cat.title %}">{{cat.description}}</a></p>
+                  {% if request.user == cat.created_by %}
+                    <p class="mb-0"><a class="btn btn-info mt-2 ml-2"href="{% url 'posts:categoryEdit' cat.title %}">Edit</a></p>
+                  {% endif %}
+                </div>
+              </div>
+              <hr>              
+            {% endif %}
+                    
+          {% endfor %}
+        </div>
+        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+          {% for cat in  categories %}          
+            {% if cat.NSFWs  %}
+              <div class="media">
+                    
+                {% if cat.upload %}
+                  <a href="{% url 'posts:category' cat.title %}">
+                    <img style="width: 15rem;" class="align-self-center mr-3 rounded float-left" src="{{cat.upload.url}}" >
+                  </a>              
+                {% endif%}
+                <div class="media-body">
+                  <h5 class="mt-0"><a href="{% url 'posts:category' cat.title %}">{{cat.title}}</a></h5>
+                  <p><a href="{% url 'posts:category' cat.title %}">{{cat.description}}</a></p>
+                  {% if request.user == cat.created_by %}
+                    <p class="mb-0"><a class="btn btn-info mt-2 ml-2"href="{% url 'posts:categoryEdit' cat.title %}">Edit</a></p>
+                  {% endif %}
+                </div>
+              </div>
+              <hr>            
+            {% endif %}
+                      
+          {% endfor %}          
+        </div>
+        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
+    </div>
+
+
+    <script>
+      const backBtn   = document.getElementById('back-btn');
+      backBtn.addEventListener('click', ()=>{
+          history.back();
+          
+      })
+
+      const is_NSFW = document.getElementById('is_NSFW');
+      let cc = false;
+      is_NSFW.addEventListener('click', event=>{
+        event.preventDefault()
+        if (cc==false) {
+          c = confirm('Estas por entrar a la categoria NSFW, seguro que eres mayor de edad?');
+          if(c==true){
+            cc=true
+          }else{
+            cc=false
+          }
+        }
+        
+        if(cc!=true){
+          
+          is_NSFW.removeAttribute('data-bs-toggle',"pill");
+          is_NSFW.removeAttribute('data-bs-target','#pills-profile');
+          
+        }else{
+          is_NSFW.setAttribute('data-bs-toggle',"pill");
+          is_NSFW.setAttribute('data-bs-target','#pills-profile');
+          event.target.click()
+          cc=false
+        }
+
+        
+        
+      })
+
+    </script>
+{% endblock content %}

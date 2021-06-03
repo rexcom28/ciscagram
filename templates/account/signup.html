@@ -1,0 +1,52 @@
+{% extends "account/base.html" %}
+
+{% load widget_tweaks %}
+{% load crispy_forms_tags %}
+
+{% load static %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% endblock extra_head %}
+
+{% block content %}
+  
+  {% block subtitlePage %}
+  <h2>Sign In</h2>
+  {% endblock subtitlePage %}
+    
+  
+  <div class="row">
+  <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    
+    <div class="row">
+      
+      {% render_field form.username placeholder=form.username.label class+="form-control mb-2"   type="text" %}
+      {{form.username.errors}}
+    </div>
+    <div class="row">
+      {{form.email|add_class:"form-control mb-2"}}
+      {{form.email.errors}}
+    </div>
+    <div class="row">
+      {{form.password1|add_class:"form-control mb-2"}}
+      {{form.password1.errors}}
+    </div>
+    <div class="row">
+      {{form.password2|add_class:"form-control mb-2"}}
+      {{form.password2.errors}}
+    </div>
+    {% if redirect_field_value %}
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+    {% endif %}
+    <button class="btn" type="submit">Sign in&raquo;</button>
+  </form>
+
+  </div>
+  <div class="row">
+    <p>Do you have an account? <a href="{{ login_url }}">Login Here</a></p>
+  </div>                      
+{% endblock %}
